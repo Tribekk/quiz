@@ -835,8 +835,9 @@
 
         // PLAN
         else if (stepObj.type === 'plan') {
-            html += `<div style="margin-bottom:24px;">
-      <div id="plan-grid" style="display:flex; flex-direction:column; gap:20px; border-radius:12px; overflow:visible; min-height:80px; margin:20px 0 16px 0;"></div>
+              html += `<div style="margin-bottom:24px;">
+        <div id="plan-grid" style="position:relative; border-radius:12px; overflow:visible; min-height:80px; margin:20px 0 16px 0;"></div>
+
       <div style="font-size:13px;color:#888;line-height:1.5;">
         Перетащите мойку, плиту и холодильник на удобные позиции.
       </div>
@@ -980,20 +981,27 @@
     function renderPlanStep(selectedForm, selectedSizes, enableNextBtn) {
         const grid = document.getElementById('plan-grid');
         grid.innerHTML = '';
-        grid.style.display = 'flex';
+
+        grid.style.position = 'relative';
+        grid.style.display = 'block';
         const cellSize = 10;
         const letters = ['A','B','C'];
         const widths = Object.values(selectedSizes).map(v => +v || 240);
         const occupancy = {};
         const applianceWidth = 60;
         const cellsPerAppliance = applianceWidth / cellSize;
+        const thickness = cellsPerAppliance * cellSize;
         const sides = [];
 
-        function placeOnSide(el, side, clientX) {
+        function placeOnSide(el, side, clientX, clientY) {
             const sideName = side.dataset.side;
             const cols = occupancy[sideName].length;
             const rect = side.getBoundingClientRect();
-            let startIdx = Math.floor((clientX - rect.left) / cellSize);
+            const orient = side.dataset.orientation;
+            let startIdx = orient === 'vertical'
+                ? Math.floor((clientY - rect.top) / cellSize)
+                : Math.floor((clientX - rect.left) / cellSize);
+
             if (startIdx < 0) startIdx = 0;
             if (startIdx > cols - cellsPerAppliance) startIdx = cols - cellsPerAppliance;
             for (let i = 0; i < cellsPerAppliance; i++) {
@@ -1012,27 +1020,40 @@
             el.dataset.side = sideName;
             el.dataset.start = startIdx;
             el.style.position = 'absolute';
-            el.style.left = (startIdx * cellSize) + 'px';
-            el.style.top = '0px';
+            if (orient === 'vertical') {
+                el.style.left = '0px';
+                el.style.top = (startIdx * cellSize) + 'px';
+            } else {
+                el.style.left = (startIdx * cellSize) + 'px';
+                el.style.top = '0px';
+            }
             side.appendChild(el);
             if (typeof enableNextBtn === 'function') enableNextBtn();
         }
 
-        widths.forEach((w, idx) => {
-            const letter = letters[idx];
+        function addSide(letter, w, orientation, left, top) {
             const cols = Math.round(w / cellSize);
             occupancy[letter] = new Array(cols).fill(null);
             const side = document.createElement('div');
             side.className = 'plan-side';
             side.dataset.side = letter;
-            side.style.width = (cols * cellSize) + 'px';
-            side.style.height = (cellsPerAppliance * cellSize) + 'px';
+            side.dataset.orientation = orientation;
+            side.style.position = 'absolute';
+            side.style.left = left + 'px';
+            side.style.top = top + 'px';
+            if (orientation === 'vertical') {
+                side.style.width = thickness + 'px';
+                side.style.height = (cols * cellSize) + 'px';
+            } else {
+                side.style.width = (cols * cellSize) + 'px';
+                side.style.height = thickness + 'px';
+            }
             side.addEventListener('dragover', e => e.preventDefault());
             side.addEventListener('drop', e => {
                 e.preventDefault();
                 const id = e.dataTransfer.getData('text/plain');
                 const el = document.getElementById(id);
-                if (el) placeOnSide(el, side, e.clientX);
+                if (el) placeOnSide(el, side, e.clientX, e.clientY);
             });
             const label = document.createElement('div');
             label.className = 'plan-side-label';
@@ -1040,8 +1061,25 @@
             side.appendChild(label);
             grid.appendChild(side);
             sides.push(side);
-        });
+        }
 
+        if (selectedForm === 'Угловая') {
+            grid.style.width = (widths[0] * cellSize) + 'px';
+            grid.style.height = (widths[1] * cellSize + thickness) + 'px';
+            addSide('A', widths[0], 'horizontal', 0, 0);
+            addSide('B', widths[1], 'vertical', widths[0] * cellSize - thickness, thickness);
+        } else if (selectedForm === 'П-образная') {
+            const maxH = Math.max(widths[1] || 0, widths[2] || 0) * cellSize + thickness;
+            grid.style.width = (widths[0] * cellSize) + 'px';
+            grid.style.height = maxH + 'px';
+            addSide('A', widths[0], 'horizontal', 0, 0);
+            addSide('B', widths[1], 'vertical', 0, thickness);
+            addSide('C', widths[2], 'vertical', widths[0] * cellSize - thickness, thickness);
+        } else {
+            grid.style.width = (widths[0] * cellSize) + 'px';
+            grid.style.height = thickness + 'px';
+            addSide('A', widths[0], 'horizontal', 0, 0);
+        }
         const appliances = [
             { id: 'sink',    img: 'https://russia-zov.ru/wp-content/uploads/2025/07/sink.png' },
             { id: 'cooktop', img: 'https://russia-zov.ru/wp-content/uploads/2025/07/base_oven.png' },
@@ -1064,7 +1102,7 @@
                 ev.dataTransfer.setData('text/plain', ev.target.id);
             });
             side.appendChild(img);
-            placeOnSide(img, side, idx * cellsPerAppliance * cellSize);
+            placeOnSide(img, side, idx * cellsPerAppliance * cellSize, 0);
 
             img.addEventListener('touchstart', function (e) {
                 e.preventDefault();
@@ -1087,7 +1125,7 @@
                     const touch = e.changedTouches[0];
                     const dropElem = document.elementFromPoint(touch.clientX, touch.clientY);
                     const sideEl = dropElem && dropElem.closest && dropElem.closest('.plan-side');
-                    if (sideEl) placeOnSide(img, sideEl, touch.clientX);
+                    if (sideEl) placeOnSide(img, sideEl, touch.clientX, touch.clientY);
                 };
                 document.addEventListener('touchmove', touchmove);
                 document.addEventListener('touchend', touchend);
