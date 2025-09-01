@@ -837,6 +837,7 @@
         else if (stepObj.type === 'plan') {
               html += `<div style="margin-bottom:24px;">
         <div id="plan-grid" style="position:relative; border-radius:12px; overflow:visible; min-height:80px; margin:20px 0 16px 0;"></div>
+
       <div style="font-size:13px;color:#888;line-height:1.5;">
         Перетащите мойку, плиту и холодильник на удобные позиции.
       </div>
@@ -980,6 +981,7 @@
     function renderPlanStep(selectedForm, selectedSizes, enableNextBtn) {
         const grid = document.getElementById('plan-grid');
         grid.innerHTML = '';
+
         grid.style.position = 'relative';
         grid.style.display = 'block';
         const cellSize = 10;
@@ -999,6 +1001,7 @@
             let startIdx = orient === 'vertical'
                 ? Math.floor((clientY - rect.top) / cellSize)
                 : Math.floor((clientX - rect.left) / cellSize);
+
             if (startIdx < 0) startIdx = 0;
             if (startIdx > cols - cellsPerAppliance) startIdx = cols - cellsPerAppliance;
             for (let i = 0; i < cellsPerAppliance; i++) {
@@ -1077,7 +1080,6 @@
             grid.style.height = thickness + 'px';
             addSide('A', widths[0], 'horizontal', 0, 0);
         }
-
         const appliances = [
             { id: 'sink',    img: 'https://russia-zov.ru/wp-content/uploads/2025/07/sink.png' },
             { id: 'cooktop', img: 'https://russia-zov.ru/wp-content/uploads/2025/07/base_oven.png' },
