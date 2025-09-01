@@ -549,36 +549,18 @@
                 ]
             },
             {
-                key: 'size',
-                type: 'inputs',
-                question: 'Укажите размеры шкафа (Ш × В × Г, см)',
-                getFields: () => [
-                    {label:'Ширина', key:'width'},
-                    {label:'Высота', key:'height'},
-                    {label:'Глубина', key:'depth'}
-                ]
-            },
-            {
-                key: 'doors',
+                key: 'style',
                 type: 'radio',
-                question: 'Сколько дверей у шкафа?',
-                options: [
-                    { value:'2', title:'2 двери', img:'' },
-                    { value:'3', title:'3 двери', img:'' },
-                    { value:'4', title:'4 двери', img:'' }
-                ]
-            },
-            {
-                key: 'color',
-                type: 'radio',
-                question: 'Выберите цвет',
-                options: [
-                    { value:'Белый', title:'Белый', img:'https://www.colorhexa.com/ffffff.png' },
-                    { value:'Дуб сонома', title:'Дуб сонома', img:'https://www.colorhexa.com/d2b48c.png' },
-                    { value:'Венге', title:'Венге', img:'https://www.colorhexa.com/523b18.png' }
-                ]
-            },
-            // Добавляешь шаги для шкафа...
+                question: 'Выберите стиль',
+                getOptions: (state) => {
+                    const base = state.type === 'Купе' ? 'kupe' : 'rasp';
+                    return [
+                        { value: 'Спальня', title: 'Спальня', img: `https://via.placeholder.com/150x100?text=${base}+bedroom` },
+                        { value: 'Прихожая', title: 'Прихожая', img: `https://via.placeholder.com/150x100?text=${base}+hallway` },
+                        { value: 'Гостиная', title: 'Гостиная', img: `https://via.placeholder.com/150x100?text=${base}+living` }
+                    ];
+                }
+            }
         ]
     };
 
@@ -751,13 +733,14 @@
 
     function renderStep(stepsConfig, stepIdx) {
         const stepObj = stepsConfig[stepIdx];
+        const stepOptions = typeof stepObj.getOptions === 'function' ? stepObj.getOptions(quizState) : stepObj.options;
         let html = `<div class="quiz-progress"><div class="quiz-progress-bar" style="width:${(stepIdx/(stepsConfig.length))*100}%"></div></div>`;
         html += `<div class="quiz-question">${stepObj.question}</div>`;
 
         // MULTI
         if (stepObj.type === 'multi') {
             html += `<div class="quiz-options">`;
-            stepObj.options.forEach(opt => {
+            stepOptions.forEach(opt => {
                 const sel = (quizState[stepObj.key]||[]).includes(opt.value) ? 'selected':'';
                 html += `<div class="quiz-card ${sel}" data-value="${opt.value}">
         ${opt.img ? `<img src="${opt.img}" alt="">` : ""}
@@ -772,7 +755,7 @@
         // RADIO
         else if (stepObj.type === 'radio') {
             html += `<div class="quiz-options">`;
-            stepObj.options.forEach(opt => {
+            stepOptions.forEach(opt => {
                 const sel = quizState[stepObj.key] === opt.value ? 'selected':'';
                 html += `<div class="quiz-card ${sel}" data-value="${opt.value}">
         ${opt.img ? `<img src="${opt.img}" alt="">` : ""}
@@ -819,7 +802,7 @@
         // radio+checkbox
         else if (stepObj.type === 'radio+checkbox') {
             html += `<div class="quiz-options">`;
-            stepObj.options.forEach(opt => {
+            stepOptions.forEach(opt => {
                 const sel = quizState[stepObj.key] === opt.value ? 'selected' : '';
                 html += `<div class="quiz-card ${sel}" data-value="${opt.value}">
         <div class="quiz-card-title">${opt.title}</div>
