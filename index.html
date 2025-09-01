@@ -553,11 +553,23 @@
                 type: 'radio',
                 question: 'Выберите стиль',
                 getOptions: (state) => {
-                    const base = state.type === 'Купе' ? 'kupe' : 'rasp';
+                    const images = {
+                        'Купе': {
+                            'Спальня': 'https://picsum.photos/id/1011/150/100',
+                            'Прихожая': 'https://picsum.photos/id/1012/150/100',
+                            'Гостиная': 'https://picsum.photos/id/1013/150/100'
+                        },
+                        'Распашной': {
+                            'Спальня': 'https://picsum.photos/id/1014/150/100',
+                            'Прихожая': 'https://picsum.photos/id/1015/150/100',
+                            'Гостиная': 'https://picsum.photos/id/1016/150/100'
+                        }
+                    };
+                    const set = images[state.type] || {};
                     return [
-                        { value: 'Спальня', title: 'Спальня', img: `https://via.placeholder.com/150x100?text=${base}+bedroom` },
-                        { value: 'Прихожая', title: 'Прихожая', img: `https://via.placeholder.com/150x100?text=${base}+hallway` },
-                        { value: 'Гостиная', title: 'Гостиная', img: `https://via.placeholder.com/150x100?text=${base}+living` }
+                        { value: 'Спальня', title: 'Спальня', img: set['Спальня'] },
+                        { value: 'Прихожая', title: 'Прихожая', img: set['Прихожая'] },
+                        { value: 'Гостиная', title: 'Гостиная', img: set['Гостиная'] }
                     ];
                 }
             }
