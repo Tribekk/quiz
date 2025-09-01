@@ -837,6 +837,7 @@
         else if (stepObj.type === 'plan') {
               html += `<div style="margin-bottom:24px;">
         <div id="plan-grid" style="position:relative; border-radius:12px; overflow:visible; min-height:80px; margin:20px 0 16px 0;"></div>
+
       <div style="font-size:13px;color:#888;line-height:1.5;">
         Перетащите мойку, плиту и холодильник на удобные позиции.
       </div>
@@ -991,6 +992,7 @@
         const cellsPerAppliance = applianceWidth / cellSize;
         const thickness = cellsPerAppliance * cellSize;
         const sides = [];
+
 
         function placeOnSide(el, side, clientX, clientY) {
             const sideName = side.dataset.side;
