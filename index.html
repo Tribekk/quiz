@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Квиз ZOV: Кухни и шкафы</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7f7f9;
+            color: #222;
+        }
+        .quiz-container {
+            max-width: 1100px;
+            margin: 32px auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 4px 24px #0001;
+            overflow: hidden;
+            display: flex;
+        }
+        .quiz-main {
+            flex: 3;
+            padding: 40px 32px 40px 48px;
+            display: flex;
+            flex-direction: column;
+        }
+        .quiz-sidebar {
+            flex: 2;
+            background: #f5f5f7;
+            border-left: 1px solid #eee;
+            padding: 32px 24px;
+            min-width: 280px;
+        }
+        .quiz-progress {
+            width: 100%;
+            background: #eee;
+            border-radius: 12px;
+            height: 13px;
+            margin-bottom: 32px;
+        }
+        .quiz-progress-bar {
+            height: 100%;
+            background: #ffaa00;
+            border-radius: 12px;
+            transition: width .3s;
+        }
+        .quiz-question {
+            font-size: 1.6em;
+            font-weight: 600;
+            margin-bottom: 28px;
+        }
+        .quiz-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px 18px;
+        }
+        .quiz-card {
+            flex: 1 1 200px;
+            background: #f8fafb;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px #0001;
+            padding: 18px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: border .18s, box-shadow .18s;
+            min-width: 160px;
+            max-width: 220px;
+        }
+        .quiz-card.selected, .quiz-card:hover {
+            border: 2px solid #ffaa00;
+            box-shadow: 0 4px 24px #ffaa0044;
+        }
+        .quiz-card img {
+            max-width: 100%;
+            max-height: 100%;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+        .quiz-card-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 1.15em;
+            text-align: center;
+        }
+        .quiz-card-sub {
+            font-size: 15px;
+            color: #666;
+            text-align: center;
+        }
+        .quiz-card-price {
+            margin-top: 7px;
+            font-weight: 600;
+            color: #ffaa00;
+            font-size: 1em;
+            text-align: center;
+        }
+        .quiz-btn {
+            padding: 12px 36px;
+            border-radius: 10px;
+            font-size: 1em;
+            border: none;
+            background: #ffaa00;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 8px #0002;
+            transition: background .18s;
+        }
+        .quiz-btn:disabled {
+            background: #e2e2e2;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .quiz-nav {
+            margin-top: 40px;
+            display: flex;
+            gap: 18px;
+        }
+        .quiz-sidebar-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .quiz-sidebar-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .quiz-sidebar-list li {
+            margin-bottom: 13px;
+            font-size: 1em;
+        }
+        .quiz-sidebar-q {
+            color: #ffaa00;
+            font-weight: 500;
+        }
+        .quiz-sidebar-a {
+            color: #222;
+            font-weight: 600;
+        }
+        .size-input {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+        .size-input label {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .size-input input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .quiz-start {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 70px 20px 90px 20px;
+        }
+        .quiz-start-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .quiz-start-options {
+            display: flex;
+            gap: 48px;
+            margin-top: 36px;
+        }
+        .quiz-start-card {
+            background: #f8fafb;
+            border-radius: 22px;
+            box-shadow: 0 4px 24px #0001;
+            padding: 38px 48px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border .18s;
+        }
+        .quiz-start-card.selected, .quiz-start-card:hover {
+            border: 2px solid #ffaa00;
+        }
+        .quiz-start-card img {
+            width: 120px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+        }
+
+        /* Мобилка - 2 карточки в ряд, крупные картинки */
+        @media (max-width: 900px) {
+            .quiz-container { flex-direction: column; }
+            .quiz-main { padding: 32px 12px; }
+            .quiz-sidebar { min-width: unset; }
+        }
+        @media (max-width: 700px) {
+            .quiz-options {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px 14px;
+                justify-items: center;
+            }
+            .quiz-card {
+                min-width: 0;
+                max-width: 100%;
+                width: 100%;
+                padding: 14px 8px;
+            }
+            .quiz-card img {
+                max-width: 100%;
+                max-height: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .quiz-main, .quiz-sidebar { padding: 10px 4px; }
+            .quiz-start-options { flex-direction: column; gap: 18px; }
+            .quiz-card { font-size: 15px; padding: 10px 4px; }
+            .quiz-card img { max-width: 100%; }
+        }
+        .final-form-wrap {
+            max-width:520px;
+            margin: 0 auto 0 auto;
+            padding: 0 10px 40px 10px;
+        }
+        .final-form-title {
+            font-size:2.1em;
+            font-weight:800;
+            margin-bottom:18px;
+            line-height:1.2;
+            letter-spacing:-1px;
+        }
+        .final-form-desc {
+            font-size:1.15em;
+            color:#222b;
+            margin-bottom:28px;
+        }
+        .final-form-fields {
+            display:grid;
+            gap:16px;
+            margin-bottom:15px;
+            grid-template-columns:1fr 1fr;
+        }
+        .final-form-fields .full { grid-column: 1/3;}
+        .final-form-input,
+        .final-form-select {
+            font-size:1.09em;
+            padding:13px 15px;
+            border:1.5px solid #eee;
+            border-radius:13px;
+            background:#fafafc;
+            box-shadow:0 2px 8px #0001;
+            transition:.17s border;
+            outline:none;
+            font-family:inherit;
+        }
+        .final-form-input:focus,
+        .final-form-select:focus {
+            border:1.5px solid #ffaa00;
+            background:#fff;
+        }
+        .final-form-row {
+            display:flex; gap:18px;
+        }
+        .final-form-checkbox-row {
+            margin:18px 0 24px 0;
+            display:flex; align-items:center; gap:10px;
+        }
+        .final-form-checkbox {
+            width:22px;height:22px;min-width:22px;min-height:22px;
+            appearance:none;
+            background:#fff;
+            border:2px solid #ffaa00;
+            border-radius:6px;
+            display:inline-block;
+            position:relative;
+            outline:none;
+            cursor:pointer;
+            transition:.13s border;
+        }
+        .final-form-checkbox:checked {
+            background: linear-gradient(90deg, #ffc167 0%, #ffaa00 100%);
+            border:2px solid #ffaa00;
+        }
+        .final-form-checkbox:checked::after {
+            content:'';
+            position:absolute;
+            left:5px; top:2px;
+            width:7px; height:13px;
+            border:solid #fff;
+            border-width:0 3px 3px 0;
+            border-radius:2px;
+            transform:rotate(45deg);
+            box-shadow:0 0 0 2px #ffaa0077;
+        }
+        .final-form-btn {
+            width:100%;
+            font-size:1.25em;
+            font-weight:700;
+            padding:16px 0 14px 0;
+            border-radius:28px;
+            background:linear-gradient(90deg, #ffc167 0%, #ffaa00 100%);
+            border:none;
+            color:#fff;
+            cursor:pointer;
+            box-shadow:0 3px 24px #ffc16745;
+            margin-top:12px;
+            transition:.16s box-shadow, .13s background;
+        }
+        .final-form-btn:hover {
+            box-shadow:0 5px 28px #ffaa0031;
+            background:linear-gradient(90deg, #ffd989 0%, #ffaa00 100%);
+        }
+        @media(max-width:700px){
+            .final-form-fields {grid-template-columns:1fr;}
+            .final-form-fields .full {grid-column:1;}
+        }
+        .code-confirm-wrap {
+            max-width:400px;
+            margin: 0 auto 0 auto;
+            padding: 0 10px 40px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .code-confirm-title {
+            font-size:1.3em;
+            font-weight:700;
+            margin-bottom:18px;
+            text-align: center;
+        }
+        .code-confirm-desc {
+            font-size:1em;
+            color:#222b;
+            margin-bottom:28px;
+            text-align:center;
+        }
+        .code-input {
+            display: block;
+            margin: auto;
+            font-size:1.5em;
+            letter-spacing:10px;
+            text-align:center;
+            border:1.5px solid #eee;
+            border-radius:13px;
+            background:#fafafc;
+            box-shadow:0 2px 8px #0001;
+            padding:14px 18px;
+            outline:none;
+            margin-bottom:22px;
+            width: 180px;
+        }
+        .code-input:focus {
+            border:1.5px solid #ffaa00;
+            background:#fff;
+        }
+        .code-err {
+            color: #e05252;
+            font-size: 1em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container">
+    <div class="quiz-main" id="quiz-main"></div>
+    <div class="quiz-sidebar" id="quiz-sidebar"></div>
+</div>
+<script>
+    const configs = {
+        kitchen: [
+            {
+                key: 'styles',
+                type: 'multi',
+                question: 'Отметьте понравившиеся кухни',
+                limit: 3,
+                options: [
+                    { value: 'Оптимальный', title: 'Оптимальный', sub:'МДФ Эмаль', price:'от 69 842 ₽/м.п.', img:'https://russia-zov.ru/wp-content/uploads/2025/07/d7b24237gf503g4304g9dc6g6779913c7ec3-1.jpg' },
+                    { value: 'Айрис', title: 'Айрис', sub:'Ламинат', price:'от 50 877 ₽/м.п.', img:'https://russia-zov.ru/wp-content/uploads/2025/07/5f3b45dfgb68fg4eb3g9b53g01c7e0ebd98c.jpg' },
+                    { value: 'Сиена', title: 'Сиена', sub:'Ламинат', price:'от 51 535 ₽/м.п.', img:'https://russia-zov.ru/wp-content/uploads/2025/07/878cdb30g81c6g4816g9d45gbef0520c0118.jpg' },
+                    { value: 'Бланко', title: 'Бланко', sub:'Ламинат', price:'от 43 054 ₽/м.п.', img:'https://russia-zov.ru/wp-content/uploads/2025/07/eda704a5ga8c6g4653gbe98g49b1e9e8b93f.jpg' },
+                    { value: 'Кентуки', title: 'Кентуки', sub:'Ламинат', price:'от 59 820 ₽/м.п.', img:'https://russia-zov.ru/wp-content/uploads/2025/07/1acf8cd7gf48eg4e67ga520g5adb0e1ca043.jpg' },
+                    { value: 'Бостон', title: 'Бостон', sub:'МДФ (EvoGloss)', price:'от 54 647 ₽/м.п.', img:'https://russia-zov.ru/wp-content/uploads/2025/07/41d8f6d8g2d66g4946g9711gaf7976cb2e0d.jpg' }
+                ]
+            },
+            {
+                key: 'form',
+                type: 'radio',
+                question: 'Какая форма кухни вам подходит?',
+                options: [
+                    { value:'Прямая', title:'Прямая', img:'https://quiz.spacehack.ru/assets/images/I_Shape_small.svg' },
+                    { value:'Угловая', title:'Угловая', img:'https://quiz.spacehack.ru/assets/images/L_Shape_small.svg' },
+                    { value:'П-образная', title:'П-образная', img:'https://quiz.spacehack.ru/assets/images/P_Shape_small.svg' }
+                ]
+            },
+            {
+                key: 'size',
+                type: 'inputs',
+                question: 'Укажите размер будущей кухни',
+                getFields: (state) => {
+                    if(state.form === 'П-образная') return [{label:'A', key:'A'},{label:'B',key:'B'},{label:'C',key:'C'}];
+                    if(state.form === 'Угловая')    return [{label:'A', key:'A'},{label:'B',key:'B'}];
+                    return [{label:'A', key:'A'}];
+                }
+            },
+            {
+                key: 'segments',
+                type: 'radio',
+                question: 'Укажите ценовой сегмент кухни',
+                options: [
+                    { value:'Эконом', title:'Эконом', desc:'от 30 тыс. руб. за пог. м.' },
+                    { value:'Базовый', title:'Базовый', desc:'от 50 тыс. руб. за пог. м.' },
+                    { value:'Премиум', title:'Премиум', desc:'от 70 тыс. руб. и выше за пог. м.' }
+                ]
+            },
+            {
+                key: 'baseCabinet',
+                type: 'radio',
+                question: 'Выберите подходящий тип напольных шкафов',
+                options: [
+                    { value:'Стандартный', title:'Стандартный', img:'https://russia-zov.ru/wp-content/uploads/2025/07/bottom_standart.png' },
+                    { value:'Шкаф без ручек', title:'Шкаф без ручек*', img:'https://russia-zov.ru/wp-content/uploads/2025/07/bottom_gola1.png' }
+                ]
+            },
+            {
+                key: 'wallCabinet',
+                type: 'radio',
+                question: 'Выберите подходящий тип навесных шкафов',
+                options: [
+                    { value:'Стандартный', title:'Стандартный', img:'https://russia-zov.ru/wp-content/uploads/2025/07/top_standart.png' },
+                    { value:'Шкаф без ручек', title:'Шкаф без ручек*', img:'https://russia-zov.ru/wp-content/uploads/2025/07/top_gola.png' },
+                    { value:'Шкаф без ручек короткое дно', title:'Шкаф без ручек* (Укороченное дно)', img:'https://russia-zov.ru/wp-content/uploads/2025/07/top_integro.png' }
+                ]
+            },
+            {
+                key: 'wallHeight',
+                type: 'radio+checkbox',
+                question: 'Выберите высоту навесных шкафов',
+                options: [
+                    { value: 720, title: '720 мм' },
+                    { value: 920, title: '920 мм' }
+                ],
+                extra: {
+                    key: 'withAntresol',
+                    type: 'checkbox',
+                    label: 'Добавить антресоль'
+                }
+            },
+            // Дальше ветвление по наличию антресоли
+            {
+                key: 'antresolDepth',
+                type: 'radio+checkbox',
+                question: 'Выберите глубину антресоли',
+                options: [
+                    { value:'300', title:'Глубина 300 мм' },
+                    { value:'510', title:'Глубина 510 мм' }
+                ],
+                extra: {
+                    key: 'antresolHandles',   // уникальный ключ для чекбокса
+                    type: 'checkbox',
+                    label: 'Устанавливать ручки на антресоль'
+                },
+                showIf: (state) => state.withAntresol // этот шаг только если есть антресоль
+            },
+            {
+                key: 'ovenPlacement',
+                type: 'radio',
+                question: 'Выберите подходящее расположение духовки',
+                options: [
+                    { value:'нижний', title:'Встроена в нижний шкаф', img: 'https://russia-zov.ru/wp-content/uploads/2025/07/Oven-in.png' },
+                    { value:'высокий', title:'Встроена в высокий шкаф*', img: 'https://russia-zov.ru/wp-content/uploads/2025/07/Oven.png' },
+                    { value:'пенал',   title:'Духовка и СВЧ встроены в пенал*', img: 'https://russia-zov.ru/wp-content/uploads/2025/07/Oven_Microwave.png' }
+                ]
+            },
+            {
+                key: 'fridgePlacement',
+                type: 'radio',
+                question: 'Выберите расположение холодильника',
+                options: [
+                    { value:'Холодильник, встроенный в высокий шкаф', title:'Холодильник, встроенный в высокий шкаф*', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Fridge-in.png' },
+                    { value:'Отдельно стоящий холодильник', title:'Отдельно стоящий холодильник', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Fridge-1.png' }
+                ]
+            },
+            {
+                key: 'dishwash',
+                type: 'radio',
+                question: 'Мытье посуды',
+                options: [
+                    { value:'Только мойка', title:'Только мойка', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Sink-1.png' },
+                    { value:'Посудомоечная машина 45 см', title:'Посудомоечная машина 45 см', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Sink_Dishwasher_45.png' },
+                    { value:'Посудомоечная машина 60 см', title:'Посудомоечная машина 60 см', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Sink_Dishwasher_60.png' }
+                ]
+            },
+            {
+                key: 'cooktop',
+                type: 'radio',
+                question: 'Выберите тип варочной поверхности',
+                options: [
+                    { value:'Газовая',   title:'Газовая', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Hob_gase.png' },
+                    { value:'Электрическая/Индукционная', title:'Электрическая/Индукционная', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Hob_electro.png' }
+                ]
+            },
+            {
+                key: 'hood',
+                type: 'radio',
+                question: 'Выберите тип вытяжки',
+                options: [
+                    { value:'Встроенная',   title:'Встроенная', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Hood_in.png' },
+                    { value:'Купольная', title:'Купольная', img:'https://russia-zov.ru/wp-content/uploads/2025/07/Hood_dome.png' }
+                ]
+            },
+            {
+                key: 'appliancesPlan',
+                type: 'plan',
+                question: 'Выберите удобное расположение техники',
+            },
+            {
+                key: 'appliancesList',
+                type: 'multi',
+                limit: 99,
+                question: 'Выберите интересующие позиции техники',
+                options: [
+                    { value:'Варочная панель', title:'Варочная панель' },
+                    { value:'Холодильник', title:'Холодильник' },
+                    { value:'Вытяжка', title:'Вытяжка' },
+                    { value:'Духовой шкаф', title:'Духовой шкаф' },
+                    { value:'Мойка', title:'Мойка' },
+                    { value:'Микроволновая печь', title:'Микроволновая печь' }
+                ]
+            }
+        ],
+        wardrobe: [
+            {
+                key: 'type',
+                type: 'radio',
+                question: 'Какой шкаф хотите?',
+                options: [
+                    { value: 'Распашной', title: 'Распашной', img:'https://russia-zov.ru/wp-content/uploads/2025/08/photo_2025-08-05_23-37-53.jpg' },
+                    { value: 'Купе', title: 'Купе', img:'https://russia-zov.ru/wp-content/uploads/2025/08/photo_2025-08-05_23-38-00.jpg' }
+                ]
+            },
+            {
+                key: 'size',
+                type: 'inputs',
+                question: 'Укажите размеры шкафа (Ш × В × Г, см)',
+                getFields: () => [
+                    {label:'Ширина', key:'width'},
+                    {label:'Высота', key:'height'},
+                    {label:'Глубина', key:'depth'}
+                ]
+            },
+            {
+                key: 'doors',
+                type: 'radio',
+                question: 'Сколько дверей у шкафа?',
+                options: [
+                    { value:'2', title:'2 двери', img:'' },
+                    { value:'3', title:'3 двери', img:'' },
+                    { value:'4', title:'4 двери', img:'' }
+                ]
+            },
+            {
+                key: 'color',
+                type: 'radio',
+                question: 'Выберите цвет',
+                options: [
+                    { value:'Белый', title:'Белый', img:'https://www.colorhexa.com/ffffff.png' },
+                    { value:'Дуб сонома', title:'Дуб сонома', img:'https://www.colorhexa.com/d2b48c.png' },
+                    { value:'Венге', title:'Венге', img:'https://www.colorhexa.com/523b18.png' }
+                ]
+            },
+            // Добавляешь шаги для шкафа...
+        ]
+    };
+
+    let quizState = {};
+    let quizType = null; // "kitchen" или "wardrobe"
+    let step = -1; // -1 — стартовый экран
+
+    function render() {
+        if(step === -1) return renderStart();
+        if(!quizType) return renderStart();
+
+        const stepsConfig = configs[quizType];
+        const visibleSteps = getVisibleSteps(stepsConfig, quizState);
+        if(step >= stepsConfig.length) return renderFinal();
+        renderStep(stepsConfig, step);
+        scrollToQuiz();
+    }
+    function scrollToQuiz() {
+        const quiz = document.querySelector('.quiz-container');
+        if(quiz) quiz.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        console.log(quiz, "scroll");
+
+    }
+    function renderStart() {
+        document.getElementById('quiz-main').innerHTML = `
+    <div class="quiz-start">
+      <div class="quiz-start-title">Что вы хотите рассчитать?</div>
+      <div class="quiz-start-options">
+        <div class="quiz-start-card" id="choose-kitchen">
+          <img src="https://russia-zov.ru/wp-content/uploads/2022/08/p-4.jpg">
+          <div class="quiz-card-title">Кухня</div>
+        </div>
+        <div class="quiz-start-card" id="choose-wardrobe">
+          <img src="https://cdn-icons-png.flaticon.com/512/3368/3368118.png">
+          <div class="quiz-card-title">Шкаф</div>
+        </div>
+      </div>
+    </div>
+  `;
+        document.getElementById('quiz-sidebar').innerHTML = `<div class="quiz-sidebar-title" style="margin-top:120px;">Быстрый подбор мебели ZOV<br><span style="color:#aaa;font-size:.97em;">Бесплатно за 5 минут</span></div>`;
+        document.getElementById('choose-kitchen').onclick = () => {
+            quizType = 'kitchen';
+            quizState = {};
+            step = 0;
+            render();
+        };
+        document.getElementById('choose-wardrobe').onclick = () => {
+            quizType = 'wardrobe';
+            quizState = {};
+            step = 0;
+            render();
+        };
+    }
+
+    function renderFinal() {
+        // Все ответы пользователя
+        const stepsConfig = configs[quizType];
+        let summaryHtml = `<div class="quiz-sidebar-title">Выбранные опции:</div><ul class="quiz-sidebar-list">`;
+        stepsConfig.forEach((s) => {
+            let val = quizState[s.key];
+            if (!val) return;
+            if (s.type === 'multi') val = val.join(', ');
+            if (s.type === 'inputs') val = Object.entries(val).map(([k,v])=>`${k}: ${v} см`).join(', ');
+            if (s.type === 'double-segment') val = `Кухня: ${val.kitchen||'-'}, Фурнитура: ${val.hardware||'-'}`;
+            summaryHtml += `<li><span class="quiz-sidebar-q">${s.question}:</span> <span class="quiz-sidebar-a">${val}</span></li>`;
+        });
+        summaryHtml += `</ul>`;
+        document.getElementById('quiz-sidebar').innerHTML = summaryHtml;
+
+        // Основная форма + sms-form (пока скрыт)
+        document.getElementById('quiz-main').innerHTML = `
+  <div class="final-form-wrap">
+    <div class="final-form-title">Наша нейросеть уже приступила к созданию и расчету ваших дизайн-проектов</div>
+    <div class="final-form-desc">
+      Заполните ваши данные для отправки ссылки на дизайны и получения подарков
+    </div>
+    <form id="final-form">
+      <div class="final-form-fields">
+        <input class="final-form-input" name="name" type="text" placeholder="Имя*" required autocomplete="name" />
+        <input class="final-form-input" name="phone" type="tel" placeholder="+7 (___) ___-__-__*" required autocomplete="tel" />
+        <input class="final-form-input full" name="email" type="email" placeholder="E-mail*" required autocomplete="email" />
+        <select class="final-form-select" name="salon">
+          <option value="">Выберите салон</option>
+          <option value="Салон 1">Салон 1</option>
+          <option value="Салон 2">Салон 2</option>
+        </select>
+        <input class="final-form-input" name="date" type="date" placeholder="Дата посещения" />
+        <input class="final-form-input" name="time" type="time" placeholder="Время посещения" />
+      </div>
+      <label class="final-form-checkbox-row">
+        <input class="final-form-checkbox" type="checkbox" required />
+        Я согласен(а) с политикой конфиденциальности и обработкой персональных данных
+      </label>
+      <button class="final-form-btn" type="submit">Получить результат</button>
+    </form>
+    <form id="sms-form" style="display:none;margin-top:40px;">
+      <div style="font-size:1.3em;font-weight:700;margin-bottom:14px;text-align:center;">Введите код из SMS</div>
+      <div style="font-size:1em;color:#222b;margin-bottom:20px;text-align:center;">На указанный номер отправлен код подтверждения.</div>
+      <input type="text" id="code-input" maxlength="6" class="code-input" pattern="[0-9]{4,6}" autocomplete="one-time-code" placeholder="000000" required>
+      <div id="code-err" class="code-err" style="display:none;"></div>
+      <button class="final-form-btn" id="submit-code-btn" style="margin-top:18px;">Подтвердить</button>
+    </form>
+  </div>
+  `;
+
+        // Маска телефона
+        const phoneInput = document.querySelector('[name="phone"]');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', (e) => {
+                let x = e.target.value.replace(/\D/g, '');
+                if (x.length > 1) x = '+7 (' + x.substr(1,3) + ') ' + x.substr(4,3) + (x.length>7?'-'+x.substr(7,2):'') + (x.length>9?'-'+x.substr(9,2):'');
+                else x = '+7 (';
+                e.target.value = x;
+            });
+        }
+
+        // Обработка основной формы — показываем SMS
+        document.getElementById('final-form').onsubmit = function(e) {
+            e.preventDefault();
+            // тут твой ajax
+            document.getElementById('final-form').style.display = 'none';
+            document.getElementById('sms-form').style.display = '';
+        };
+
+        // Обработка формы с кодом
+        document.getElementById('sms-form').onsubmit = function(e) {
+            e.preventDefault();
+            // эмулируем проверку, 123456 = успех
+            const code = document.getElementById('code-input').value.trim();
+            if(code === '123456'){
+                renderQuizDone();
+            } else {
+                document.getElementById('code-err').textContent = "Неверный код. Попробуйте ещё раз.";
+                document.getElementById('code-err').style.display = '';
+            }
+        };
+    }
+
+
+    function renderQuizDone() {
+        document.getElementById('quiz-main').innerHTML = `
+    <div style="max-width:480px;margin:80px auto 0;text-align:center;">
+      <div style="font-size:2em;font-weight:700;margin-bottom:20px;">
+        Благодарим за прохождение квиза
+      </div>
+      <div style="font-size:1.18em;margin-bottom:40px;line-height:1.5;">
+        В течение 30 минут на указанный вами номер телефона придет ссылка с несколькими дизайн-проектами.
+      </div>
+      <button class="quiz-btn" style="
+        font-size:1.25em;font-weight:600;
+        padding:18px 44px;border-radius:30px;
+        background: linear-gradient(90deg,#ffc167 0%,#ffaa00 100%);
+        box-shadow:0 4px 18px #ffc16744;
+        border:none;
+        color:#fff;cursor:pointer;">
+        Завершить квиз
+      </button>
+    </div>
+  `;
+        document.getElementById('quiz-sidebar').innerHTML = '';
+        document.querySelector('.quiz-btn').onclick = () => {
+            // Тут можно сбросить квиз или скрыть окно
+            quizType = null;
+            quizState = {};
+            step = -1;
+            render();
+        };
+    }
+
+
+    function renderStep(stepsConfig, stepIdx) {
+        const stepObj = stepsConfig[stepIdx];
+        let html = `<div class="quiz-progress"><div class="quiz-progress-bar" style="width:${(stepIdx/(stepsConfig.length))*100}%"></div></div>`;
+        html += `<div class="quiz-question">${stepObj.question}</div>`;
+
+        // MULTI
+        if (stepObj.type === 'multi') {
+            html += `<div class="quiz-options">`;
+            stepObj.options.forEach(opt => {
+                const sel = (quizState[stepObj.key]||[]).includes(opt.value) ? 'selected':'';
+                html += `<div class="quiz-card ${sel}" data-value="${opt.value}">
+        ${opt.img ? `<img src="${opt.img}" alt="">` : ""}
+        <div class="quiz-card-title">${opt.title}</div>
+        ${opt.sub ? `<div class="quiz-card-sub">${opt.sub}</div>` : ""}
+        ${opt.price ? `<div class="quiz-card-price">${opt.price}</div>` : ""}
+      </div>`;
+            });
+            html += `</div>`;
+        }
+
+        // RADIO
+        else if (stepObj.type === 'radio') {
+            html += `<div class="quiz-options">`;
+            stepObj.options.forEach(opt => {
+                const sel = quizState[stepObj.key] === opt.value ? 'selected':'';
+                html += `<div class="quiz-card ${sel}" data-value="${opt.value}">
+        ${opt.img ? `<img src="${opt.img}" alt="">` : ""}
+        <div class="quiz-card-title">${opt.title}</div>
+         ${opt.desc ? `<div class="quiz-card-sub">${opt.desc}</div>` : ""}
+      </div>`;
+            });
+            html += `</div>`;
+        }
+
+        // INPUTS
+        else if (stepObj.type === 'inputs') {
+            const fields = stepObj.getFields(quizState);
+            html += `<form id="size-form">`;
+            fields.forEach(f => {
+                html += `<div class="size-input"><label>${f.label}</label><input type="number" name="${f.key}" value="${quizState[stepObj.key]?.[f.key]||''}" required></div>`;
+            });
+            html += `</form>`;
+        }
+
+        // DOUBLE-SEGMENT
+        else if (stepObj.type === 'double-segment') {
+            html += `<div class="quiz-options" style="gap: 40px;">`;
+            html += `<div><b>Кухня</b><br>`;
+            stepObj.options1.forEach(opt=>{
+                const sel = quizState.segments?.kitchen===opt.value?'selected':'';
+                html+=`<div class="quiz-card ${sel}" data-type="kitchen" data-value="${opt.value}">
+      <div class="quiz-card-title">${opt.title}</div>
+      <div style="font-size:13px;color:#666;">${opt.desc||''}</div>
+    </div>`;
+            });
+            html+=`</div><div><b>Фурнитура</b><br>`;
+            stepObj.options2.forEach(opt=>{
+                const sel = quizState.segments?.hardware===opt.value?'selected':'';
+                html+=`<div class="quiz-card ${sel}" data-type="hardware" data-value="${opt.value}">
+      ${opt.img?`<img src="${opt.img}" alt="" style="max-width:64px;max-height:48px;margin-bottom:8px;">`:""}
+      <div class="quiz-card-title">${opt.title}</div>
+      <div style="font-size:13px;color:#666;">${opt.desc||''}</div>
+    </div>`;
+            });
+            html+='</div></div>';
+        }
+
+        // radio+checkbox
+        else if (stepObj.type === 'radio+checkbox') {
+            html += `<div class="quiz-options">`;
+            stepObj.options.forEach(opt => {
+                const sel = quizState[stepObj.key] === opt.value ? 'selected' : '';
+                html += `<div class="quiz-card ${sel}" data-value="${opt.value}">
+        <div class="quiz-card-title">${opt.title}</div>
+      </div>`;
+            });
+            html += `</div>`;
+            html += `
+      <div style="margin-top:18px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:1.1em;">
+          <input type="checkbox" id="${stepObj.extra.key}" ${quizState[stepObj.extra.key] ? 'checked' : ''} />
+          ${stepObj.extra?.label || ''}
+        </label>
+      </div>
+    `;
+        }
+
+        // PLAN
+        else if (stepObj.type === 'plan') {
+            html += `<div style="margin-bottom:24px;">
+      <div id="plan-grid" style="display:grid; gap:6px; border-radius:12px; overflow:hidden; min-height:80px; margin:20px 0 16px 0;"></div>
+      <div style="font-size:13px;color:#888;line-height:1.5;">
+        Перетащите мойку, плиту и холодильник на удобные позиции.
+      </div>
+    </div>`;
+        }
+
+        // NAV
+        html += `<div class="quiz-nav">`;
+        html += `<button class="quiz-btn" id="quiz-btn-back"${stepIdx===0?'':' style="opacity:1"'}>${stepIdx===0?'В начало':'← Назад'}</button>`;
+        html += `<button class="quiz-btn" id="quiz-btn-next" disabled>Далее →</button>`;
+        html += `</div>`;
+
+        document.getElementById('quiz-main').innerHTML = html;
+
+        // === Логика шагов ===
+        // MULTI
+        if (stepObj.type === 'multi') {
+            document.querySelectorAll('.quiz-card').forEach(card=>{
+                card.onclick = ()=>{
+                    let arr = quizState[stepObj.key]||[];
+                    const v = card.dataset.value;
+                    if(arr.includes(v)) arr = arr.filter(x=>x!==v);
+                    else if(arr.length<stepObj.limit) arr.push(v);
+                    quizState[stepObj.key]=arr;
+                    renderStep(stepsConfig,stepIdx);
+                };
+            });
+            document.getElementById('quiz-btn-next').disabled = !(quizState[stepObj.key]?.length > 0);
+        }
+        // RADIO
+        else if (stepObj.type === 'radio') {
+            document.querySelectorAll('.quiz-card').forEach(card=>{
+                card.onclick = ()=>{
+                    quizState[stepObj.key]=card.dataset.value;
+                    renderStep(stepsConfig,stepIdx);
+                };
+            });
+            document.getElementById('quiz-btn-next').disabled = !quizState[stepObj.key];
+        }
+        // INPUTS
+        else if (stepObj.type === 'inputs') {
+            document.getElementById('size-form').oninput = ()=>{
+                const fields = stepObj.getFields(quizState);
+                let ok = true, state = {};
+                fields.forEach(f=>{
+                    const v = document.querySelector(`[name=${f.key}]`).value;
+                    state[f.key]=v;
+                    if(!v) ok=false;
+                });
+                quizState[stepObj.key]=state;
+                document.getElementById('quiz-btn-next').disabled = !ok;
+            };
+            setTimeout(()=>document.getElementById('size-form').oninput(),20);
+        }
+        // double-segment
+        else if (stepObj.type === 'double-segment') {
+            document.querySelectorAll('.quiz-card').forEach(card=>{
+                card.onclick = ()=>{
+                    const t = card.dataset.type, v = card.dataset.value;
+                    quizState.segments=quizState.segments||{};
+                    quizState.segments[t]=v;
+                    renderStep(stepsConfig,stepIdx);
+                };
+            });
+            document.getElementById('quiz-btn-next').disabled = !(quizState.segments?.kitchen && quizState.segments?.hardware);
+        }
+        // radio+checkbox (wallHeight и antresolDepth)
+        else if (stepObj.type === 'radio+checkbox') {
+            document.querySelectorAll('.quiz-card').forEach(card => {
+                card.onclick = () => {
+                    quizState[stepObj.key] = Number(card.dataset.value) || card.dataset.value;
+                    renderStep(stepsConfig, stepIdx);
+                };
+            });
+            const cb = document.getElementById(stepObj.extra.key);
+            if (cb) {
+                cb.onchange = () => {
+                    quizState[stepObj.extra.key] = cb.checked;
+                    if (stepObj.extra.key === 'withAntresol' && !cb.checked) {
+                        delete quizState.antresolDepth;
+                        delete quizState.antresolHandles;
+                    }
+                    render();
+                };
+            }
+            document.getElementById('quiz-btn-next').disabled = !quizState[stepObj.key];
+        }
+        // PLAN
+        else if (stepObj.type === 'plan') {
+            renderPlanStep(
+                quizState.form,
+                quizState.size || {},
+                () => { document.getElementById('quiz-btn-next').disabled = false; }
+            );
+            document.getElementById('quiz-btn-next').disabled = false;
+        }
+
+        // НАВИГАЦИЯ
+        document.getElementById('quiz-btn-back').onclick=()=>{
+            if(stepIdx===0) {
+                quizType = null;
+                quizState = {};
+                step = -1;
+                render();
+                scrollToQuiz();
+            } else {
+                // перескакиваем невидимые шаги назад
+                let prevIdx = stepIdx-1;
+                while (
+                    stepsConfig[prevIdx] &&
+                    typeof stepsConfig[prevIdx].showIf === 'function' &&
+                    !stepsConfig[prevIdx].showIf(quizState)
+                    ) prevIdx--;
+                step = prevIdx;
+                render();
+                scrollToQuiz();
+            }
+        };
+        document.getElementById('quiz-btn-next').onclick=()=>{
+            // перескакиваем невидимые шаги вперёд
+            let nextIdx = stepIdx+1;
+            while (
+                stepsConfig[nextIdx] &&
+                typeof stepsConfig[nextIdx].showIf === 'function' &&
+                !stepsConfig[nextIdx].showIf(quizState)
+                ) nextIdx++;
+            step = nextIdx;
+            render();
+        };
+
+        renderSidebar(stepsConfig, stepIdx);
+    }
+
+
+
+
+    function getVisibleSteps(cfg, state) {
+        return cfg.filter(step => !step.showIf || step.showIf(state));
+    }
+
+    function renderPlanStep(selectedForm, selectedSizes, enableNextBtn) {
+        const grid = document.getElementById('plan-grid');
+        grid.innerHTML = '';
+        const cellSize = 60;
+        const widths = Object.values(selectedSizes).map(v => +v || 240); // подстраховка если не выбраны размеры
+        let cols = 0, rows = 0;
+        const invalidCells = new Set();
+
+        if (selectedForm === 'Прямая') {
+            cols = Math.max(3, Math.round((widths[0] || 240) / cellSize));
+            rows = 1;
+        } else if (selectedForm === 'Угловая') {
+            cols = Math.max(2, Math.round((widths[0] || 240) / cellSize));
+            rows = Math.max(2, Math.round((widths[1] || 180) / cellSize));
+            invalidCells.add(`${cols-1},${rows-1}`);
+        } else if (selectedForm === 'П-образная') {
+            const [A,B,C] = widths;
+            const w = Math.max(2, Math.round((A || 180) / cellSize));
+            const h = Math.max(2, Math.round((B || 120) / cellSize));
+            const back = Math.max(2, Math.round((C || 120) / cellSize));
+            cols = w;
+            rows = h+1;
+            for (let c = 1; c < back; c++) {
+                for (let r = 1; r < h; r++) {
+                    invalidCells.add(`${c},${r}`);
+                }
+            }
+        } else { // дефолт (пусть будет 3x1)
+            cols = 3;
+            rows = 1;
+        }
+
+        grid.style.gridTemplateColumns = `repeat(${cols}, 60px)`;
+        grid.style.gridTemplateRows    = `repeat(${rows}, 60px)`;
+
+        // собираем валидные ячейки
+        const validCells = [];
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#fff';
+                cell.style.borderRadius = '8px';
+                cell.style.minHeight = '56px';
+                cell.style.minWidth  = '56px';
+                cell.style.display = 'flex';
+                cell.style.alignItems = 'center';
+                cell.style.justifyContent = 'center';
+                cell.style.boxShadow = '0 1px 4px #0001';
+                cell.style.border = '1px solid #e0e0e0';
+
+                if (invalidCells.has(`${c},${r}`)) {
+                    cell.style.background="none";
+                    cell.style.border="none";
+                    cell.style.opacity = '0.4';
+                    cell.style.pointerEvents = 'none';
+                } else {
+                    validCells.push(cell);
+                }
+                cell.addEventListener('dragover', e => e.preventDefault());
+                cell.addEventListener('drop', e => {
+                    e.preventDefault();
+                    const draggedId = e.dataTransfer.getData('text/plain');
+                    const dragged = document.getElementById(draggedId);
+                    if (dragged && cell !== dragged.parentNode) {
+                        cell.appendChild(dragged);
+                        if(typeof enableNextBtn === 'function') enableNextBtn();
+                    }
+                });
+                grid.appendChild(cell);
+            }
+        }
+
+        // какие приборы (можешь добавить еще)
+        const appliances = [
+            { id: 'sink',    img: 'https://russia-zov.ru/wp-content/uploads/2025/07/sink.png' },
+            { id: 'cooktop', img: 'https://russia-zov.ru/wp-content/uploads/2025/07/base_oven.png' },
+            { id: 'fridge',  img: 'https://russia-zov.ru/wp-content/uploads/2025/07/fridge.png' }
+        ];
+
+        // на старте просто кладем приборы в первые свободные клетки
+        appliances.forEach((a, idx) => {
+            if(document.getElementById(`placed-${a.id}`)) return; // уже есть
+            const cell = validCells[idx];
+            if (!cell) return;
+            const img = document.createElement('img');
+            img.src       = a.img;
+            img.id        = `placed-${a.id}`;
+            img.draggable = true;
+            img.style.maxWidth = '44px';
+            img.style.maxHeight = '44px';
+            img.style.cursor = 'grab';
+            img.dataset.type = a.id;
+            img.addEventListener('dragstart', ev => {
+                ev.dataTransfer.setData('text/plain', ev.target.id);
+            });
+            cell.appendChild(img);
+
+            // Тач-обработка для мобилок:
+            img.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                let moveImg = img.cloneNode(true);
+                moveImg.style.position = 'fixed';
+                moveImg.style.zIndex = 9999;
+                moveImg.style.pointerEvents = 'none';
+                moveImg.style.opacity = '0.7';
+                document.body.appendChild(moveImg);
+
+                const move = (touch) => {
+                    moveImg.style.left = (touch.clientX-22)+'px';
+                    moveImg.style.top = (touch.clientY-22)+'px';
+                };
+
+                move(e.touches[0]);
+
+                const touchmove = (e) => {
+                    move(e.touches[0]);
+                };
+                const touchend = (e) => {
+                    moveImg.remove();
+                    document.removeEventListener('touchmove', touchmove);
+                    document.removeEventListener('touchend', touchend);
+
+                    const touch = e.changedTouches[0];
+                    const dropElem = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if(dropElem && dropElem.classList.contains('cell') && !dropElem.querySelector('img')) {
+                        dropElem.appendChild(img);
+                        if(typeof enableNextBtn === 'function') enableNextBtn();
+                    }
+                };
+
+                document.addEventListener('touchmove', touchmove);
+                document.addEventListener('touchend', touchend);
+            });
+        });
+
+
+        if(typeof enableNextBtn === 'function') enableNextBtn();
+    }
+
+    function renderSidebar(cfg, idx) {
+        let html = `<div class="quiz-sidebar-title">Ваш выбор</div><ul class="quiz-sidebar-list">`;
+        cfg.forEach((s, i)=>{
+            if(i>idx) return;
+            let val = quizState[s.key];
+            if(!val) return;
+            if(s.type==='multi') val = val.join(', ');
+            if(s.type==='inputs') val = Object.entries(val).map(([k,v])=>`${k}: ${v} см`).join(', ');
+            if(s.type==='double-segment') val = `Кухня: ${val.kitchen||'-'}, Фурнитура: ${val.hardware||'-'}`;
+            html += `<li><span class="quiz-sidebar-q">${s.question}:</span> <span class="quiz-sidebar-a">${val}</span></li>`;
+        });
+        html += `</ul>`;
+        document.getElementById('quiz-sidebar').innerHTML = html;
+    }
+
+    // Первый рендер
+    render();
+</script>
+</body>
+</html>
