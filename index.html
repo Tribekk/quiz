@@ -981,17 +981,18 @@
     function renderPlanStep(selectedForm, selectedSizes, enableNextBtn) {
         const grid = document.getElementById('plan-grid');
         grid.innerHTML = '';
-
         grid.style.position = 'relative';
         grid.style.display = 'block';
         const cellSize = 10;
         const letters = ['A','B','C'];
-        const widths = Object.values(selectedSizes).map(v => +v || 240);
+        const widths = [selectedSizes.A, selectedSizes.B, selectedSizes.C].map(v => +v || 240);
+        const [sizeA, sizeB, sizeC] = widths;
         const occupancy = {};
         const applianceWidth = 60;
         const cellsPerAppliance = applianceWidth / cellSize;
         const thickness = cellsPerAppliance * cellSize;
         const sides = [];
+
 
         function placeOnSide(el, side, clientX, clientY) {
             const sideName = side.dataset.side;
@@ -1001,7 +1002,6 @@
             let startIdx = orient === 'vertical'
                 ? Math.floor((clientY - rect.top) / cellSize)
                 : Math.floor((clientX - rect.left) / cellSize);
-
             if (startIdx < 0) startIdx = 0;
             if (startIdx > cols - cellsPerAppliance) startIdx = cols - cellsPerAppliance;
             for (let i = 0; i < cellsPerAppliance; i++) {
@@ -1064,22 +1064,23 @@
         }
 
         if (selectedForm === 'Угловая') {
-            grid.style.width = (widths[0] * cellSize) + 'px';
-            grid.style.height = (widths[1] * cellSize + thickness) + 'px';
-            addSide('A', widths[0], 'horizontal', 0, 0);
-            addSide('B', widths[1], 'vertical', widths[0] * cellSize - thickness, thickness);
+            grid.style.width = (sizeB * cellSize) + 'px';
+            grid.style.height = (sizeA * cellSize + thickness) + 'px';
+            addSide('B', sizeB, 'horizontal', 0, 0);
+            addSide('A', sizeA, 'vertical', 0, thickness);
         } else if (selectedForm === 'П-образная') {
-            const maxH = Math.max(widths[1] || 0, widths[2] || 0) * cellSize + thickness;
-            grid.style.width = (widths[0] * cellSize) + 'px';
+            const maxH = Math.max(sizeA || 0, sizeC || 0) * cellSize + thickness;
+            grid.style.width = (sizeB * cellSize) + 'px';
             grid.style.height = maxH + 'px';
-            addSide('A', widths[0], 'horizontal', 0, 0);
-            addSide('B', widths[1], 'vertical', 0, thickness);
-            addSide('C', widths[2], 'vertical', widths[0] * cellSize - thickness, thickness);
+            addSide('B', sizeB, 'horizontal', 0, 0);
+            addSide('A', sizeA, 'vertical', 0, thickness);
+            addSide('C', sizeC, 'vertical', sizeB * cellSize - thickness, thickness);
         } else {
-            grid.style.width = (widths[0] * cellSize) + 'px';
+            grid.style.width = (sizeA * cellSize) + 'px';
             grid.style.height = thickness + 'px';
-            addSide('A', widths[0], 'horizontal', 0, 0);
+            addSide('A', sizeA, 'horizontal', 0, 0);
         }
+
         const appliances = [
             { id: 'sink',    img: 'https://russia-zov.ru/wp-content/uploads/2025/07/sink.png' },
             { id: 'cooktop', img: 'https://russia-zov.ru/wp-content/uploads/2025/07/base_oven.png' },
