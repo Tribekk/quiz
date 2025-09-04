@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Квиз ZOV: Кухни и шкафы</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://captcha-api.yandex.ru/captcha.js" defer></script>
+    <script src="https://smartcaptcha.yandexcloud.net/captcha.js" defer></script>
     <style>
         body {
             margin: 0;
@@ -674,7 +674,12 @@
         <input class="final-form-checkbox" type="checkbox" required />
         Я согласен(а) с политикой конфиденциальности и обработкой персональных данных
       </label>
-      <div id="captcha" class="smart-captcha" data-sitekey="ВАШ_SITE_KEY"></div>
+      <div
+  style="height: 100px"
+  id="captcha-container"
+  class="smart-captcha"
+  data-sitekey="ysc1_vHidU0axAYKhK5qEjYJbdThcMdX47mauJLMg7TLcd89adc52"
+></div>
       <button class="final-form-btn" type="submit">Получить результат</button>
     </form>
   </div>
