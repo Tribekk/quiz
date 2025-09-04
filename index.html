@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Квиз ZOV: Кухни и шкафы</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://captcha-api.yandex.ru/captcha.js" defer></script>
     <style>
         body {
             margin: 0;
@@ -152,6 +153,14 @@
         .size-input label {
             font-weight: bold;
             margin-bottom: 4px;
+        }
+        .size-input-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .size-input-wrapper span {
+            margin-left: 6px;
+            font-size: 16px;
         }
         .size-input input {
             padding: 8px;
@@ -417,7 +426,6 @@
                 type: 'radio',
                 question: 'Укажите ценовой сегмент кухни',
                 options: [
-                    { value:'Эконом', title:'Эконом', desc:'от 30 тыс. руб. за пог. м.' },
                     { value:'Базовый', title:'Базовый', desc:'от 50 тыс. руб. за пог. м.' },
                     { value:'Премиум', title:'Премиум', desc:'от 70 тыс. руб. и выше за пог. м.' }
                 ]
@@ -642,7 +650,7 @@
         summaryHtml += `</ul>`;
         document.getElementById('quiz-sidebar').innerHTML = summaryHtml;
 
-        // Основная форма + sms-form (пока скрыт)
+        // Форма с капчей
         document.getElementById('quiz-main').innerHTML = `
   <div class="final-form-wrap">
     <div class="final-form-title">Наша нейросеть уже приступила к созданию и расчету ваших дизайн-проектов</div>
@@ -666,14 +674,8 @@
         <input class="final-form-checkbox" type="checkbox" required />
         Я согласен(а) с политикой конфиденциальности и обработкой персональных данных
       </label>
+      <div id="captcha" class="smart-captcha" data-sitekey="ВАШ_SITE_KEY"></div>
       <button class="final-form-btn" type="submit">Получить результат</button>
-    </form>
-    <form id="sms-form" style="display:none;margin-top:40px;">
-      <div style="font-size:1.3em;font-weight:700;margin-bottom:14px;text-align:center;">Введите код из SMS</div>
-      <div style="font-size:1em;color:#222b;margin-bottom:20px;text-align:center;">На указанный номер отправлен код подтверждения.</div>
-      <input type="text" id="code-input" maxlength="6" class="code-input" pattern="[0-9]{4,6}" autocomplete="one-time-code" placeholder="000000" required>
-      <div id="code-err" class="code-err" style="display:none;"></div>
-      <button class="final-form-btn" id="submit-code-btn" style="margin-top:18px;">Подтвердить</button>
     </form>
   </div>
   `;
@@ -689,25 +691,16 @@
             });
         }
 
-        // Обработка основной формы — показываем SMS
+        // Обработка формы: проверяем капчу
         document.getElementById('final-form').onsubmit = function(e) {
             e.preventDefault();
-            // тут твой ajax
-            document.getElementById('final-form').style.display = 'none';
-            document.getElementById('sms-form').style.display = '';
-        };
-
-        // Обработка формы с кодом
-        document.getElementById('sms-form').onsubmit = function(e) {
-            e.preventDefault();
-            // эмулируем проверку, 123456 = успех
-            const code = document.getElementById('code-input').value.trim();
-            if(code === '123456'){
-                renderQuizDone();
-            } else {
-                document.getElementById('code-err').textContent = "Неверный код. Попробуйте ещё раз.";
-                document.getElementById('code-err').style.display = '';
+            const token = window.smartCaptcha.getValue('captcha');
+            if (!token) {
+                alert('Подтвердите, что вы не робот');
+                return;
             }
+            // тут твой ajax
+            renderQuizDone();
         };
     }
 
@@ -783,7 +776,7 @@
             const fields = stepObj.getFields(quizState);
             html += `<form id="size-form">`;
             fields.forEach(f => {
-                html += `<div class="size-input"><label>${f.label}</label><input type="number" name="${f.key}" value="${quizState[stepObj.key]?.[f.key]||''}" required></div>`;
+                html += `<div class="size-input"><label>${f.label}</label><div class="size-input-wrapper"><input type="number" name="${f.key}" value="${quizState[stepObj.key]?.[f.key]||''}" required><span>см</span></div></div>`;
             });
             html += `</form>`;
         }
