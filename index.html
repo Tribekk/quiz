@@ -674,16 +674,15 @@
         <input class="final-form-checkbox" type="checkbox" required />
         Я согласен(а) с политикой конфиденциальности и обработкой персональных данных
       </label>
-      <div
-  style="height: 100px"
-  id="captcha-container"
-  class="smart-captcha"
-  data-sitekey="ysc1_vHidU0axAYKhK5qEjYJbdThcMdX47mauJLMg7TLcd89adc52"
-></div>
+      <div id="captcha-container" style="height: 100px"></div>
       <button class="final-form-btn" type="submit">Получить результат</button>
     </form>
   </div>
   `;
+
+        window.smartCaptcha.render('captcha-container', {
+            sitekey: 'ysc1_vHidU0axAYKhK5qEjYJbdThcMdX47mauJLMg7TLcd89adc52'
+        });
 
         // Маска телефона
         const phoneInput = document.querySelector('[name="phone"]');
@@ -699,7 +698,8 @@
         // Обработка формы: проверяем капчу
         document.getElementById('final-form').onsubmit = function(e) {
             e.preventDefault();
-            const token = window.smartCaptcha.getValue('captcha');
+            // получаем токен из правильного контейнера капчи
+            const token = window.smartCaptcha.getValue('captcha-container');
             if (!token) {
                 alert('Подтвердите, что вы не робот');
                 return;
