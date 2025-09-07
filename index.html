@@ -662,8 +662,8 @@
         <input class="final-form-input" name="name" type="text" placeholder="Имя*" required autocomplete="name" />
         <input class="final-form-input" name="phone" type="tel" placeholder="+7 (___) ___-__-__*" required autocomplete="tel" />
         <input class="final-form-input full" name="email" type="email" placeholder="E-mail*" required autocomplete="email" />
-        <select class="final-form-select" name="salon">
-          <option value="">Выберите салон</option>
+        <select class="final-form-select" name="salon" required>
+          <option value="" disabled selected>Выберите салон</option>
           <option value="Салон 1">Салон 1</option>
           <option value="Салон 2">Салон 2</option>
         </select>
@@ -674,16 +674,14 @@
         <input class="final-form-checkbox" type="checkbox" required />
         Я согласен(а) с политикой конфиденциальности и обработкой персональных данных
       </label>
-      <div
-  style="height: 100px"
-  id="captcha-container"
-  class="smart-captcha"
-  data-sitekey="ysc1_vHidU0axAYKhK5qEjYJbdThcMdX47mauJLMg7TLcd89adc52"
-></div>
+      <div id="captcha-container" style="height: 100px"></div>
       <button class="final-form-btn" type="submit">Получить результат</button>
     </form>
   </div>
   `;
+        const captchaId = window.smartCaptcha.render('captcha-container', {
+            sitekey: 'ysc1_vHidU0axAYKhK5qEjYJbdThcMdX47mauJLMg7TLcd89adc52'
+        });
 
         // Маска телефона
         const phoneInput = document.querySelector('[name="phone"]');
@@ -699,7 +697,8 @@
         // Обработка формы: проверяем капчу
         document.getElementById('final-form').onsubmit = function(e) {
             e.preventDefault();
-            const token = window.smartCaptcha.getValue('captcha');
+            // получаем токен из правильного контейнера капчи
+            const token = window.smartCaptcha.getResponse(captchaId);
             if (!token) {
                 alert('Подтвердите, что вы не робот');
                 return;
