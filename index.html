@@ -688,8 +688,6 @@
         <input class="final-form-input" name="phone" type="tel" placeholder="+7 (___) ___-__-__*" required autocomplete="tel" />
         <input class="final-form-input full" name="email" type="email" placeholder="E-mail*" required autocomplete="email" />
         <input type="hidden" name="salon" value="${quizState.salon || ''}" />
-        <input class="final-form-input" name="date" type="date" placeholder="Дата посещения" />
-        <input class="final-form-input" name="time" type="time" placeholder="Время посещения" />
       </div>
       <label class="final-form-checkbox-row">
         <input class="final-form-checkbox" type="checkbox" required />
@@ -725,7 +723,7 @@
             }
             const formData = new FormData(e.target);
             formData.append('quiz', JSON.stringify(quizState));
-            fetch('https://russia-zov.ru/wp-content/themes/russiazov/include/axios/sendQuiz2.php', { method: 'POST', body: formData })
+            fetch('https://zov-mebel.ru/wp-content/themes/kukhnizov/include/axios/sendQuiz2.php', { method: 'POST', body: formData })
                 .then(() => renderQuizDone());
         };
     }
