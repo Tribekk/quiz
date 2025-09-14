@@ -386,14 +386,14 @@
 </div>
 <script>
     const salons = [
-        { value:'ТВК «Миллион мелочей»', title:'ТВК «Миллион мелочей»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-1.d9a7549e.jpg', email:'bibir@example.com' },
-        { value:'ТД «Дом для дома»', title:'ТД «Дом для дома»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-2.a9adf520.jpg', email:'polez@example.com' },
-        { value:'Мебельный центр «Москва»', title:'Мебельный центр «Москва»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-3.f6dd34d7.jpg', email:'domod@example.com' },
-        { value:'Салон «КухниПарк»', title:'Салон «КухниПарк»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-4.63f9f174.jpg', email:'skhod@example.com' },
-        { value:'Салон ТП «Отрада»', title:'Салон ТП «Отрада»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-7.c4b0ed3a.jpg', email:'grand@example.com' },
-        { value:'Салон ТК «Небо»', title:'Салон ТК «Небо»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-8.97411749.jpg', email:'altuf@example.com' },
-        { value:'ТЦ «Ашан-Алтуфьево»', title:'ТЦ «Ашан-Алтуфьево»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-9.8cf4e920.jpg', email:'brat@example.com' },
-        { value:'ТЦ «Филион»', title:'ТЦ «Филион»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-10.38fc1193.jpg', email:'filion@example.com' },
+        { value:'9277', title:'ТВК «Миллион мелочей»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-1.d9a7549e.jpg', email:'shop4@zov-mebel.ru' },
+        { value:'9278', title:'м. Полежаевская', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-2.a9adf520.jpg', email:'shop2@zov-mebel.ru' },
+        { value:'9280', title:'Мебельный центр «Москва»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-3.f6dd34d7.jpg', email:'shop3@zov-mebel.ru' },
+        { value:'9281', title:'Салон «КухниПарк»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-4.63f9f174.jpg', email:'shop1@zov-mebel.ru' },
+        { value:'12205', title:'Салон ТП «Отрада»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-7.c4b0ed3a.jpg', email:'shop5@zov-mebel.ru' },
+        { value:'12849', title:'Салон ТК «Небо»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-8.97411749.jpg', email:'shop6@zov-mebel.ru' },
+        { value:'16080', title:'ТЦ «Ашан-Алтуфьево»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-9.8cf4e920.jpg', email:'shop7@zov-mebel.ru' },
+        { value:'17001', title:'ТЦ «Филлион»', img:'https://russia-zov.ru/wp-content/uploads/2025/09/shop-10.38fc1193.jpg', email:'shop8@zov-mebel.ru' },
     ];
 
     const configs = {
@@ -687,7 +687,7 @@
         <input class="final-form-input" name="name" type="text" placeholder="Имя*" required autocomplete="name" />
         <input class="final-form-input" name="phone" type="tel" placeholder="+7 (___) ___-__-__*" required autocomplete="tel" />
         <input class="final-form-input full" name="email" type="email" placeholder="E-mail*" required autocomplete="email" />
-         <input type="hidden" name="salon" value="${salonObj.title || ''}" />
+        <input type="hidden" name="salon" value="${quizState.salon || ''}" />
         <input class="final-form-input" name="date" type="date" placeholder="Дата посещения" />
         <input class="final-form-input" name="time" type="time" placeholder="Время посещения" />
       </div>
@@ -724,9 +724,8 @@
                 return;
             }
             const formData = new FormData(e.target);
-            const salonObj = salons.find(s => s.value === quizState.salon) || {};
-            formData.append('target', salonObj.email || '');
-            fetch('send.php', { method: 'POST', body: formData })
+            formData.append('quiz', JSON.stringify(quizState));
+            fetch('https://russia-zov.ru/wp-content/themes/russiazov/include/axios/sendQuiz2.php', { method: 'POST', body: formData })
                 .then(() => renderQuizDone());
         };
     }
